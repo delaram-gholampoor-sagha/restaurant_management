@@ -31,7 +31,7 @@ func HashPassword(password string) string {
 	return
 }
 
-func Verifypassword(userPassword string, providedPassword string) (bool, string) {
+func VerifyPassword(userPassword string, providedPassword string) (bool, string) {
 	return
 
 }
