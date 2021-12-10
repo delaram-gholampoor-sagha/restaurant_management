@@ -82,6 +82,12 @@ func CreateMenu() gin.HandlerFunc {
 	}
 }
 
+
+func inTimeSpan(start , end , check time.Time) bool{
+	return start.After(time.Now()) && end.After(time.Now())
+ 	
+}
+
 func UpdateMenu() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -123,8 +129,10 @@ func UpdateMenu() gin.HandlerFunc {
 			upsert := true
 
 
+			// If true, a new document will be inserted if the filter does not match any documents in the collection. The
+	// default value is false.
 			opt := options.UpdateOptions(
-				Upsert: &upsert,
+				Upsert : &upsert,
 			)
 
 			result , err := menuCollection.UpdateOne(
