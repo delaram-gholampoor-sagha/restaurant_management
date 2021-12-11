@@ -119,7 +119,7 @@ func CreateFood() gin.HandlerFunc {
 		food.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		food.ID = primitive.NewObjectID()
 		food.Food_id = food.ID.Hex()
-		var num = toFixed(*food.Price, 2)
+		var num = toFixed(food.Price, 2)
 		food.Price = &num
 
 		result, insetionErr := foodCollection.InsertOne(ctx, food)
@@ -141,7 +141,7 @@ func UpdateFood() gin.HandlerFunc {
 		var food models.Food
 		var menu models.Menu
 
-		foodId = c.Param("food_id")
+		foodId := c.Param("food_id")
 		if err := c.BindJSON(&food); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
