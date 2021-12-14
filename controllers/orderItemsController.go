@@ -219,7 +219,7 @@ func ItemsByOrder(id string ) (OrderItems []primitive.M , err error) {
 		"$sum" , 1
 	}}}, 
 	{"order_items" ,
-	bson.D{{""}} 
+	bson.D{{"$push" , "$$ROOT"}} 
 }
 	}} 
 

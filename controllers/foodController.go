@@ -12,11 +12,12 @@ import (
 	"github.com/Delaram-Gholampoor-Sagha/restaurant_management/database"
 	"github.com/Delaram-Gholampoor-Sagha/restaurant_management/models"
 	"github.com/gin-gonic/gin"
+
+	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"gopkg.in/go-playground/validator.v8"
 )
 
 var foodCollection *mongo.Collection = database.OpenCollection(database.Client, "food")
@@ -107,19 +108,20 @@ func CreateFood() gin.HandlerFunc {
 		}
 		// food_item belongs to a menu so we have to first make sure that the menu exist .. how ? by its id !
 		// as we alreedy seen to create a food item you need to enter a menu_id
-		err := menuCollection.Find(ctx, bson.M{"menu_id": food.Menu_id}).Decode(&menu)
+		err := menuCollection.FindOne(ctx, bson.M{"menu_id": food.Menu_id}).Decode(&menu)
+
 		defer cancel()
 		if err != nil {
 			msg := fmt.Sprintf("menu was not found")
 			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
-			err
+			return
 		}
 
 		food.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		food.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		food.ID = primitive.NewObjectID()
 		food.Food_id = food.ID.Hex()
-		var num = toFixed(food.Price, 2)
+		var num = toFixed(*food.Price, 2)
 		food.Price = &num
 
 		result, insetionErr := foodCollection.InsertOne(ctx, food)

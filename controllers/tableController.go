@@ -102,47 +102,41 @@ func UpdateTable() gin.HandlerFunc {
 		var updatedObj primitive.D
 
 		if table.Number_of_guests != nil {
-			updatedObj = append(updatedObj, bson.M{"number_of_guests" : table.Number_of_guests})
+			updatedObj = append(updatedObj, bson.E{"number_of_guests": table.Number_of_guests})
 		}
 
-
-		if table.Table_number !=nil {
-			updatedObj = append(updatedObj, bson.M{"table_number" : table.Table_number})
+		if table.Table_number != nil {
+			updatedObj = append(updatedObj, bson.E{"table_number": table.Table_number})
 		}
 
-
-		table.Updated_at , _ = time.Parse(time.RFC3339 , time.Now().Format(time.RFC3339))
-
+		table.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 
 		upsert := true
 
 		opt := options.UpdateOptions(
-			Upsert: &upsert,
+			Upsert : &upsert,
 		)
 
-		filter := bson.M{"table_id" : tableId}
+		filter := bson.M{"table_id": tableId}
 
-
-		result , err := tableCollection.UpdateOne(
-			ctx , 
+		result, err := tableCollection.UpdateOne(
+			ctx,
 			filter,
 			bson.D{
-				{"$set" : updatedObj},
-
+				{"$set": updatedObj},
 			},
 			&opt,
 		)
 
-
 		if err != nil {
-			msg  := fmt.Sprintf("table item update failed")
-			c.JSON(http.StatusInternalServerError , gin.H{"error" msg })
+			msg := fmt.Sprintf("table item update failed")
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 			return
 		}
 
 		defer cancel()
 
-		c.JSON(http.StatusOK , result)
+		c.JSON(http.StatusOK, result)
 
 	}
 }

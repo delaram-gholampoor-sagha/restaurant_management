@@ -24,7 +24,7 @@ func main() {
 
 	routes.UserRoutes(router)
 	//first we have to check if the user is authenticated or not then would be ready to use these routes
-	router.Use(middleware.Authentication)
+	router.Use(middleware.Authentication())
 
 	// here we are initilizing our routes
 	routes.FoodRoutes(router)

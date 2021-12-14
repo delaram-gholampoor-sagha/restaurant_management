@@ -132,7 +132,7 @@ func UpdateMenu() gin.HandlerFunc {
 			// If true, a new document will be inserted if the filter does not match any documents in the collection. The
 	// default value is false.
 			opt := options.UpdateOptions(
-				Upsert : &upsert,
+				Upsert : upsert,
 			)
 
 			result , err := menuCollection.UpdateOne(
