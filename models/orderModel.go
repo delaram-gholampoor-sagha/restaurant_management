@@ -12,5 +12,6 @@ type Order struct {
 	Created_at time.Time          `json:"created_at"`
 	Updated_at time.Time          `json:"updated_at"`
 	Order_id   string             `json:"order_id"`
-	Table_id   *string            `json:"table_id"`
+	// there will be a third look up , we can access all the details of the table model through this table_id
+	Table_id *string `json:"table_id"`
 }
