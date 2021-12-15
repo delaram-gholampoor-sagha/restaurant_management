@@ -133,7 +133,7 @@ func UpdateOrder() gin.HandlerFunc {
 
 
 			opt := options.UpdateOptions(
-				Upsert : &upsert,
+				Upsert : &upsert
 			)
 
 			result , err := orderCollection.UpdateOne(
