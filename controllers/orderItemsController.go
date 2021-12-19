@@ -137,16 +137,16 @@ func UpdateOrderItem() gin.HandlerFunc {
 
 		upsert := true
 
-		opt := options.UpdateOptions(
+		opt := options.UpdateOptions{
 			Upsert: &upsert,
-		)
+		}
 		result , err :=orderItemCollection.UpdateOne(
 			ctx ,
 			filter , 
 			bson.D{
 				{"$set" , updatedObj},
 			},
-			&opt
+			&opt,
 		)
 
 		if err != nil {
@@ -206,9 +206,9 @@ func ItemsByOrder(id string ) (OrderItems []primitive.M , err error) {
 				{"order_id" , "$order.order_id"},
 				{"price" , "$food.price"},
 				{"quantity" , 1},
-			}
+			},
  
-		}
+		},
 
      
 	
@@ -216,11 +216,11 @@ func ItemsByOrder(id string ) (OrderItems []primitive.M , err error) {
 
 	   // it basically groups all the data based on the particulare criteria or format  
 	   groupStage :=bson.D{{"$group" , bson.D{{"_id" , bson.D{{"order_id" , "$order_id"} , {"table_id" , "$table_id"} , {"table_number" , "$table_number"}}} , {"payment_due" , bson.D{{"$sum" , "$amount"}}}, {"total_count" , bson.D{
-		"$sum" , 1
+		"$sum" , 1,
 	}}}, 
 	{"order_items" ,
-	bson.D{{"$push" , "$$ROOT"}} 
-}
+	bson.D{{"$push" , "$$ROOT"}} ,
+},
 	}} 
 
 
@@ -232,7 +232,7 @@ func ItemsByOrder(id string ) (OrderItems []primitive.M , err error) {
 			{"total_count" , 1},
 			{"table_number" , "$_id.table_number"},
 			{"order_items" , 1 },
-		}}
+		}},
 	}
 
 	result , err := orderItemCollection.Aggregate(
@@ -249,7 +249,7 @@ func ItemsByOrder(id string ) (OrderItems []primitive.M , err error) {
 		groupStage,
 		projectStage2,	
 
-		}
+		},
 	)
 
 	 if err != nil {

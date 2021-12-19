@@ -132,16 +132,19 @@ func UpdateOrder() gin.HandlerFunc {
 			filter := bson.M{"order_id": orderId}
 
 
-			opt := options.UpdateOptions(
-				Upsert : &upsert
-			)
+			
+		
+		
+			opt := options.UpdateOptions{
+				Upsert: &upsert,
+			}
 
 			result , err := orderCollection.UpdateOne(
 				ctx,
 				filter,
 				bson.D{
 					{"$set" , updateObj},
-				}
+				},
 				&opt,
 			)
 

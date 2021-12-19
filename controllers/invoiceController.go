@@ -85,82 +85,80 @@ func UpdateInvoice() gin.HandlerFunc {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		var invoice models.Invoice
 		invoiceId := c.Param("invoice_id")
-	
+
 		if err := c.BindJSON(&invoice); err != nil {
-			c.JSON(http.StatusBadRequest , gin.H{"error" : err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-	
-		filter := bson.M{"invoice_id" : invoiceId}
-	
+
+		filter := bson.M{"invoice_id": invoiceId}
+
 		var updateObj primitive.D
-	
+
 		if invoice.Payment_method != nil {
 			// E represents a BSON element for a D. It is usually used inside a D.
-			updateObj = append(updateObj, bson.E{"payment_method" , invoice.Payment_method})
-			
-	
+			updateObj = append(updateObj, bson.E{"payment_method", invoice.Payment_method})
+
 		}
-	
+
 		if invoice.Payment_status != nil {
-			   updateObj = append(updateObj, bson.E{"payment_status" , invoice.Payment_status})
+			updateObj = append(updateObj, bson.E{"payment_status", invoice.Payment_status})
 		}
-		
-		invoice.Updated_at , _ = time.Parse(time.RFC3339 , time.Now().Format(time.RFC3339))
-		updateObj = append(updateObj, bson.E{"updated_at" , invoice.Updated_at})
-	
-	
+
+		invoice.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		updateObj = append(updateObj, bson.E{"updated_at", invoice.Updated_at})
+
 		upsert := true
-	
-		opt := options.UpdateOptions(
+
+		opt := options.UpdateOptions{
 			Upsert: &upsert,
-		)
-	
-	
+		}
+
 		status := "PENDING"
 		if invoice.Payment_status == nil {
 			invoice.Payment_status == &status
 		}
-	
-		result , err := invoiceCollection.InsertOne(
-			ctx , 
+
+		result, err := invoiceCollection.InsertOne(
+			ctx,
 			filter,
 			bson.D{
-				{"$set" : updateObj},
+				{"$set": updateObj},
 			},
 			&opt,
 		)
-	
+		defer cancel()
+
 		if err != nil {
 			msg := fmt.Sprintf("invoice item update failed")
-			c.JSON(http.StatusInternalServerError , gin.H{"error" : msg})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 			return
-		} 
-	
-		c.JSON(http.StatusOK , result )
-	
+		}
+
+		c.JSON(http.StatusOK, result)
+
 	}
 }
 
 func CreateInvoice() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		var ctx , cancel = context.WithTimeout(context.Background() , 100*time.Second)
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
 		var invoice models.Invoice
 
 		if err := c.BindJSON(&invoice); err != nil {
-			c.JSON(http.StatusInternalServerError , gin.H{"error" : err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		var order model.Order 
+		var order models.Order
 
-		err := orderCollection.FindOne(ctx , bson.M{"order_id" , invoice.order_id}).Decode(&order)
+		err := orderCollection.FindOne(ctx, bson.M{"order_id", invoice.order_id}).Decode(&order)
 		defer cancel()
 		if err != nil {
 			msg := fmt.Sprintf("message order was no found ")
-			c.JSON(http.StatusInternalServerError , gin.H{"eeror" : msg})
+			c.JSON(http.StatusInternalServerError, gin.H{"eeror": msg})
 			return
 		}
 		status := "PENDING"
@@ -168,38 +166,30 @@ func CreateInvoice() gin.HandlerFunc {
 			invoice.Payment_status = &status
 		}
 
+		invoice.Payment_due_date, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 
-		invoice.Payment_due_date , _ = time.Parse(time.RFC3339 , time.Now().Format(time.RFC3339))
-
-		invoice.Created_at , _ = time.Parse(time.RFC3339 , time.Now().Format(time.RFC3339))
-		invoice.Updated_at , _ = time.Parse(time.RFC3339 , time.Now().Format(time.RFC3339))
+		invoice.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		invoice.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		invoice.ID = primitive.NewObjectID()
 		invoice.Invoice_id = invoice.ID.Hex()
 
 		validationErr := validate.Struct(invoice)
 		if validationErr != nil {
-			c.JSON(http.StatusInternalServerError , gin.H{"error" : validationErr.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": validationErr.Error()})
 			return
 		}
-		
 
-		result , insertErr := invoiceCollection.InsertOne(ctx , invoice)
+		result, insertErr := invoiceCollection.InsertOne(ctx, invoice)
 
 		if insertErr != nil {
 			msg := fmt.Sprintf("invoice item was not created")
-			c.JSON(http.StatusInternalServerError , gin.H{"error" : msg})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 			return
 		}
 		defer cancel()
 
-		c.JSON(http.StatusOK , result)
-
+		c.JSON(http.StatusOK, result)
 
 	}
-	
+
 }
-
-
-
-
-

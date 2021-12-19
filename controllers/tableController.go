@@ -113,10 +113,9 @@ func UpdateTable() gin.HandlerFunc {
 
 		upsert := true
 
-		opt := options.UpdateOptions(
-			Upsert : &upsert,
-		)
-
+		opt := options.UpdateOptions{
+			Upsert: &upsert,
+		}
 		filter := bson.M{"table_id": tableId}
 
 		result, err := tableCollection.UpdateOne(

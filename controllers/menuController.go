@@ -82,10 +82,9 @@ func CreateMenu() gin.HandlerFunc {
 	}
 }
 
-
-func inTimeSpan(start , end , check time.Time) bool{
+func inTimeSpan(start, end, check time.Time) bool {
 	return start.After(time.Now()) && end.After(time.Now())
- 	
+
 }
 
 func UpdateMenu() gin.HandlerFunc {
@@ -121,37 +120,33 @@ func UpdateMenu() gin.HandlerFunc {
 				updateObj = append(updateObj, bson.E{"category", menu.Category})
 			}
 
-			
-			menu.Updated_at  , _= time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
-			updateObj = append(updateObj, bson.E{"updated_at" , menu.Updated_at})
-
+			menu.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+			updateObj = append(updateObj, bson.E{"updated_at", menu.Updated_at})
 
 			upsert := true
 
-
 			// If true, a new document will be inserted if the filter does not match any documents in the collection. The
-	// default value is false.
-			opt := options.UpdateOptions(
-				Upsert : upsert,
-			)
+			// default value is false.
+			opt := options.UpdateOptions{
+				Upsert: &upsert,
+			}
 
-			result , err := menuCollection.UpdateOne(
-				ctx , 
-				filter ,
+			result, err := menuCollection.UpdateOne(
+				ctx,
+				filter,
 				bson.D{
-					{"$set" , updateObj},
+					{"$set", updateObj},
 				},
 				&opt,
-
 			)
 
 			if err != nil {
 				msg := "Menu update fail"
-				c.JSON(http.StatusInternalServerError , gin.H{"error" : msg})
+				c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 			}
 
 			defer cancel()
-			c.JSON(http.StatusOK , result)
+			c.JSON(http.StatusOK, result)
 		}
 
 	}
