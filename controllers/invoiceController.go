@@ -116,14 +116,14 @@ func UpdateInvoice() gin.HandlerFunc {
 
 		status := "PENDING"
 		if invoice.Payment_status == nil {
-			invoice.Payment_status == &status
+			invoice.Payment_status = &status
 		}
 
-		result, err := invoiceCollection.InsertOne(
+		result, err := invoiceCollection.UpdateOne(
 			ctx,
 			filter,
 			bson.D{
-				{"$set": updateObj},
+				{"$set", updateObj},
 			},
 			&opt,
 		)
@@ -154,7 +154,7 @@ func CreateInvoice() gin.HandlerFunc {
 
 		var order models.Order
 
-		err := orderCollection.FindOne(ctx, bson.M{"order_id", invoice.order_id}).Decode(&order)
+		err := orderCollection.FindOne(ctx, bson.M{"order_id": invoice.Order_id}).Decode(&order)
 		defer cancel()
 		if err != nil {
 			msg := fmt.Sprintf("message order was no found ")

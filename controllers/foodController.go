@@ -121,9 +121,9 @@ func CreateFood() gin.HandlerFunc {
 		food.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 		food.ID = primitive.NewObjectID()
 		food.Food_id = food.ID.Hex()
+
 		var num = toFixed(*food.Price, 2)
 		food.Price = &num
-
 		result, insetionErr := foodCollection.InsertOne(ctx, food)
 		if insetionErr != nil {
 			msg := fmt.Sprintf("Food item was not creted")
@@ -156,7 +156,7 @@ func UpdateFood() gin.HandlerFunc {
 
 		}
 
-		if food.Price != 0 {
+		if *food.Price != 0 {
 			updateObj = append(updateObj, bson.E{"price", food.Price})
 		}
 
